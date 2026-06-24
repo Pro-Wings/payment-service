@@ -31,5 +31,10 @@ public class PaymentController {
         logger.debug("Returning {} payments", payments.size());
         return payments;
     }
+
+    @GetMapping("/test")
+    public String test() {
+        return paymentService.processPayment();
+    }
 }
 

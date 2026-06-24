@@ -3,7 +3,9 @@ package com.prowings.paymentservice.service;
 import com.prowings.paymentservice.model.Payment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +16,8 @@ public class PaymentService {
 
     private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
+    @Autowired
+    RestTemplate restTemplate;
     /**
      * Returns a dummy list of payments. Uses Java 8 Stream API to generate mock data.
      */
@@ -35,5 +39,16 @@ public class PaymentService {
         logger.debug("Generated {} dummy payments", payments.size());
         return payments;
     }
+
+    public String processPayment() {
+
+        String response =
+                restTemplate.getForObject(
+                        "http://SHIPPING-SERVICE/api/shipments/test",
+                        String.class);
+
+        return "Payment Processed : " + response;
+    }
+
 }
 
