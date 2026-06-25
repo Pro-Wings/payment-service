@@ -36,5 +36,10 @@ public class PaymentController {
     public String test() {
         return paymentService.processPayment();
     }
+
+    @GetMapping("/testCircuitBreaker")
+    public String testCircuitBreaker() {
+        return paymentService.processPaymentToTestCircuitBreaker();
+    }
 }
 

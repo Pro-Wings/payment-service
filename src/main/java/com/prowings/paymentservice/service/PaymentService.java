@@ -1,6 +1,7 @@
 package com.prowings.paymentservice.service;
 
 import com.prowings.paymentservice.model.Payment;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,23 @@ public class PaymentService {
                         String.class);
 
         return "Payment Processed : " + response;
+    }
+
+    @CircuitBreaker(
+            name = "shippingServiceCircuit",
+            fallbackMethod = "shippingFallback")
+    public String processPaymentToTestCircuitBreaker() {
+
+        return restTemplate.getForObject(
+                "http://SHIPPING-SERVICE/api/shipments/status",
+                String.class);
+    }
+
+    public String shippingFallback(Throwable ex) {
+        // Log the exception for debugging and visibility into failures
+        logger.warn("shippingFallback invoked due to: {}", ex.toString());
+
+        return "Shipping Service is currently unavailable";
     }
 
 }
