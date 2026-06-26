@@ -2,6 +2,7 @@ package com.prowings.paymentservice.service;
 
 import com.prowings.paymentservice.model.Payment;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,9 @@ public class PaymentService {
         return "Payment Processed : " + response;
     }
 
+    @Retry(
+            name = "shippingRetry",
+            fallbackMethod = "shippingRetryFallback")
     @CircuitBreaker(
             name = "shippingServiceCircuit",
             fallbackMethod = "shippingFallback")
@@ -66,6 +70,13 @@ public class PaymentService {
         logger.warn("shippingFallback invoked due to: {}", ex.toString());
 
         return "Shipping Service is currently unavailable";
+    }
+
+    public String shippingRetryFallback(Throwable ex) {
+        // Log the exception for debugging and visibility into failures
+        logger.warn("shippingRetryFallback invoked due to: {}", ex.toString());
+
+        return "Shipping Service is currently unavailable after 2 retries";
     }
 
 }

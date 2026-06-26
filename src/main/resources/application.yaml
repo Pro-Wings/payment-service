@@ -5,6 +5,11 @@ spring:
   application:
     name: PAYMENT-SERVICE
 
+
+  logging:
+    level:
+      io.github.resilience4j.retry: DEBUG
+
 eureka:
   client:
     service-url:
@@ -14,18 +19,21 @@ eureka:
     fetch-registry: true
 
 resilience4j:
+  retry:
+    instances:
+      shippingRetry:
+        retryAspectOrder: 1
+        maxAttempts: 3
+        waitDuration: 2s
+
   circuitbreaker:
     instances:
       shippingServiceCircuit:
-
+        circuitBreakerAspectOrder: 2
         slidingWindowSize: 5
-
         minimumNumberOfCalls: 5
-
         failureRateThreshold: 50
-
         waitDurationInOpenState: 20s
-
         permittedNumberOfCallsInHalfOpenState: 2
 
 
@@ -33,4 +41,4 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics,circuitbreakers,circuitbreakerevents
+        include: health,metrics,circuitbreakers,circuitbreakerevents,retry,retryevents,loggers,threaddump
