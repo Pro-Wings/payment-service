@@ -19,6 +19,16 @@ eureka:
     fetch-registry: true
 
 resilience4j:
+
+  ratelimiter:
+    instances:
+      shippingRateLimiter:
+        # Number of requests allowed during one refresh period
+        limitForPeriod: 5
+        # Bucket refill interval
+        limitRefreshPeriod: 10s
+        # How long to wait for a permit
+        timeoutDuration: 0
   retry:
     instances:
       shippingRetry:

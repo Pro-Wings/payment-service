@@ -2,6 +2,8 @@ package com.prowings.paymentservice.service;
 
 import com.prowings.paymentservice.model.Payment;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.RequestNotPermitted;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,9 @@ public class PaymentService {
 
         return "Payment Processed : " + response;
     }
-
+    @RateLimiter(
+            name = "shippingRateLimiter",
+            fallbackMethod = "rateLimitFallback")
     @Retry(
             name = "shippingRetry",
             fallbackMethod = "shippingRetryFallback")
@@ -77,6 +81,13 @@ public class PaymentService {
         logger.warn("shippingRetryFallback invoked due to: {}", ex.toString());
 
         return "Shipping Service is currently unavailable after 2 retries";
+    }
+
+    public String rateLimitFallback(RequestNotPermitted ex) {
+
+        logger.warn("!!!!!!!! Rate Limit Exceeded !!!!!!!!!!!");
+
+        return "Too many requests. Please try again later.";
     }
 
 }
